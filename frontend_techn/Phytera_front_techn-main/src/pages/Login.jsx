@@ -5,21 +5,28 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import loginBg from '../assets/login_bg.png';
 
+import { authService } from '../services/authService';
+
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(null);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setErrorMsg(null);
 
-        // Simulate login delay
-        setTimeout(() => {
+        try {
+            await authService.login(email, password);
             setIsLoading(false);
             navigate('/dashboard');
-        }, 1500);
+        } catch (err) {
+            setIsLoading(false);
+            setErrorMsg(err.message || 'Échec de la connexion');
+        }
     };
 
     return (
@@ -73,8 +80,11 @@ const Login = () => {
                 <div className="max-w-md w-full relative z-10">
                     <div className="mb-10">
                         <h2 className="text-3xl font-bold text-white mb-2">Bienvenue</h2>
-                        <p className="text-slate-400">Connectez-vous pour accéder à votre tableau de bord.</p>
-                    </div>
+                    {errorMsg && (
+                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium">
+                            {errorMsg}
+                        </div>
+                    )}
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-2">
