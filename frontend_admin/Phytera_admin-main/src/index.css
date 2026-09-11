@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@layer theme {
+  :root {
+    /* Custom colors for PhyTera */
+    --color-primary: #10B981;
+    /* Emerald 500 */
+    --color-primary-dark: #059669;
+    --color-primary-light: #34D399;
+
+    --color-phytera-bg: #0B1120;
+    /* Very dark blue */
+    --color-phytera-card: #151F32;
+    --color-phytera-border: #1E293B;
+    --color-phytera-accent: #0EA5E9;
+  }
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-phytera-bg: var(--color-phytera-bg);
+  --color-phytera-card: var(--color-phytera-card);
+  --color-phytera-border: var(--color-phytera-border);
+  --color-phytera-accent: var(--color-phytera-accent);
+}
+
+/* Custom Utilities that were in @layer components */
+/* In v4 we can just write CSS */
+
+.card {
+  @apply bg-phytera-card border border-phytera-border rounded-xl shadow-lg p-6;
+}
+
+.btn-primary {
+  @apply bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2;
+}
+
+.btn-outline {
+  @apply border border-slate-600 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2;
+}
+
+.input-field {
+  @apply bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 w-full;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-phytera-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-phytera-border rounded-full hover:bg-slate-600;
+}
+
+body {
+  @apply bg-phytera-bg text-slate-100 font-sans antialiased;
+}
