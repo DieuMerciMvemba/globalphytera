@@ -38,6 +38,14 @@ export class DroneService {
   async findByField(fieldId: string) {
     return this.prisma.droneMission.findMany({
       where: { fieldId },
+      include: { field: { include: { farm: true } } },
+      orderBy: { flightDate: 'desc' },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.droneMission.findMany({
+      include: { field: { include: { farm: true } } },
       orderBy: { flightDate: 'desc' },
     });
   }

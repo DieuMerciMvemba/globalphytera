@@ -9,9 +9,9 @@ const SettingsPage = () => {
     const [userProfile, setUserProfile] = useState(() => {
         try {
             const stored = localStorage.getItem('user');
-            return stored ? JSON.parse(stored) : { nom: 'Agriculteur', email: 'agriculteur@phytera.ag', role: 'AGRICULTEUR' };
+            return stored ? JSON.parse(stored) : { nom: '', email: '', role: 'AGRICULTEUR' };
         } catch (e) {
-            return { nom: 'Agriculteur', email: 'agriculteur@phytera.ag', role: 'AGRICULTEUR' };
+            return { nom: '', email: '', role: 'AGRICULTEUR' };
         }
     });
 

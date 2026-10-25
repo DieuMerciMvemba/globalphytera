@@ -13,29 +13,8 @@ export default function AuditLogsPage() {
             const data = await auditService.getAuditLogs(page, 50);
             setLogs(Array.isArray(data) ? data : data?.data || []);
         } catch (err) {
-            console.warn('Backend audit logs endpoint error, fallback to mock data');
-            setLogs([
-                {
-                    id: 'audit-1',
-                    action: 'USER_LOGIN',
-                    entity: 'User',
-                    entityId: 'usr-admin-01',
-                    user: { nom: 'Admin Systèmes', email: 'admin@phytera.io' },
-                    ipAddress: '192.168.1.45',
-                    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                    createdAt: new Date().toISOString(),
-                },
-                {
-                    id: 'audit-2',
-                    action: 'ROTATE_DEVICE_KEY',
-                    entity: 'Device',
-                    entityId: 'dev-esp32-001',
-                    user: { nom: 'Agriculteur Exploitant', email: 'agriculteur@phytera.io' },
-                    ipAddress: '197.242.10.12',
-                    userAgent: 'PhyTera Mobile/1.0',
-                    createdAt: new Date(Date.now() - 7200000).toISOString(),
-                },
-            ]);
+            console.error('Erreur récupération logs d\'audit:', err.message);
+            setLogs([]);
         } finally {
             setLoading(false);
         }

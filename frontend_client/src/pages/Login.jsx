@@ -15,7 +15,6 @@ const Login = () => {
         password: '',
         confirmPassword: '',
         nom: '',
-        role: 'AGRICULTEUR',
     });
 
     const handleSubmit = async (e) => {
@@ -37,60 +36,32 @@ const Login = () => {
         }
 
         try {
-            if (isRegister) {
-                const res = await authService.register({
-                    email: formData.email,
+            const res = isRegister
+                ? await authService.register({
+                    email: formData.email.trim(),
                     password: formData.password,
-                    nom: formData.nom,
-                    role: formData.role,
-                });
-
-                const userData = res?.user || {
-                    id: 'usr-' + Date.now(),
-                    email: formData.email,
-                    nom: formData.nom || 'Agriculteur',
-                    role: formData.role || 'AGRICULTEUR',
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
-                localStorage.setItem('isAuthenticated', 'true');
-                navigate('/');
-            } else {
-                const res = await authService.login({
-                    email: formData.email,
+                    nom: formData.nom.trim(),
+                })
+                : await authService.login({
+                    email: formData.email.trim(),
                     password: formData.password,
                 });
 
-                const userData = res?.user || {
-                    id: 'usr-1',
-                    email: formData.email,
-                    nom: 'Mama Hélène',
-                    role: 'AGRICULTEUR',
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
-                localStorage.setItem('isAuthenticated', 'true');
-                navigate('/');
-            }
-        } catch (err) {
-            console.warn('Auth API fallback active:', err.message);
-
-            if (err.message && err.message.includes('déjà utilisé')) {
-                setError(err.message);
-                setLoading(false);
-                return;
+            // Session valide uniquement si le backend a renvoyé un vrai token + utilisateur
+            if (!res?.accessToken || !res?.user) {
+                throw new Error('Réponse invalide du serveur. Veuillez réessayer.');
             }
 
-            // Offline-first fallback
-            const fallbackUser = {
-                id: 'usr-' + Date.now(),
-                email: formData.email || 'agriculteur@phytera.io',
-                nom: formData.nom || (isRegister ? 'Nouvel Agriculteur' : 'Mama Hélène'),
-                role: formData.role || 'AGRICULTEUR',
-            };
+            // Cette application est dédiée aux agriculteurs
+            if (res.user.role !== 'AGRICULTEUR') {
+                authService.logout();
+                throw new Error('Ce compte n\'est pas un compte agriculteur. Utilisez l\'espace Technicien ou Administrateur.');
+            }
 
-            localStorage.setItem('token', 'jwt-token-' + Date.now());
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('user', JSON.stringify(fallbackUser));
             navigate('/');
+        } catch (err) {
+            console.error('Auth error:', err.message);
+            setError(err.message || 'Erreur de connexion au serveur.');
         } finally {
             setLoading(false);
         }
@@ -119,14 +90,7 @@ const Login = () => {
                 </div>
 
                 <div className="relative z-10 glass-panel p-6 rounded-2xl border-l-4 border-neon-green max-w-md">
-                    <p className="italic text-gray-300 mb-4">"PhyTera a révolutionné notre gestion des sols. Une précision agronomique inégalée."</p>
-                    <div className="flex items-center gap-3">
-                        <img src="https://ui-avatars.com/api/?name=Mama+Helene&background=0284c7&color=fff" className="w-10 h-10 rounded-full" alt="User" />
-                        <div>
-                            <div className="font-bold text-sm">Mama Hélène</div>
-                            <div className="text-xs text-neon-green">Exploitante Agricole, Kasangulu</div>
-                        </div>
-                    </div>
+                    <p className="text-gray-300">Suivi des sols, alertes et diagnostic IA de vos parcelles, alimentés par vos boîtiers IoT PhyTera.</p>
                 </div>
             </div>
 
@@ -172,18 +136,6 @@ const Login = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-xs font-semibold text-gray-300 uppercase ml-1">Rôle *</label>
-                                    <select
-                                        value={formData.role}
-                                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                        className="w-full bg-navy-800/50 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue"
-                                    >
-                                        <option value="AGRICULTEUR">Agriculteur / Exploitant</option>
-                                        <option value="TECHNICIEN">Technicien Maintenance IoT</option>
-                                        <option value="ADMIN">Administrateur Système</option>
-                                    </select>
-                                </div>
                             </>
                         )}
 

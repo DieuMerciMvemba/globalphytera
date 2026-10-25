@@ -21,22 +21,32 @@ const WelcomeCard = () => {
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-neon-blue/20 rounded-full blur-3xl group-hover:bg-neon-blue/30 transition-colors duration-500"></div>
 
             <div className="relative z-10 flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-                <div className="relative shrink-0">
+                <div className="flex items-center gap-4 sm:block shrink-0">
                     <img
                         src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0284c7&color=fff&size=128`}
                         alt="Profile"
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/20 shadow-lg object-cover"
+                        className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/20 shadow-lg object-cover"
                     />
-                    <div className="absolute -bottom-2 -right-2 bg-neon-green text-navy-900 text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full border border-navy-900">
-                        {user.role || 'PRO'}
+                    {/* Badge mobile à côté de l'avatar */}
+                    <div className="sm:hidden">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neon-green/15 border border-neon-green/30 text-neon-green text-[11px] font-bold font-mono tracking-wider uppercase">
+                            <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+                            {user.role || 'AGRICULTEUR'}
+                        </span>
                     </div>
                 </div>
 
-                <div className="flex-1 min-w-0">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 truncate">
+                <div className="flex-1 min-w-0 w-full">
+                    {/* Badge desktop au-dessus du titre */}
+                    <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neon-green/15 border border-neon-green/30 text-neon-green text-xs font-bold font-mono tracking-wider uppercase mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+                        {user.role || 'AGRICULTEUR'}
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight break-words">
                         Bienvenue, <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-cyan">{userName}</span>
                     </h2>
-                    <p className="text-gray-400 text-sm mb-4 sm:mb-6 max-w-md">
+                    <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 max-w-md leading-relaxed">
                         Vos cultures se portent bien aujourd'hui. L'analyse IA suggère une irrigation modérée sur vos parcelles.
                     </p>
 

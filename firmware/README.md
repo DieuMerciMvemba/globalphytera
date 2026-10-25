@@ -49,7 +49,7 @@ Dans le Gestionnaire de Bibliothèques Arduino (Outils ➔ Gérer les bibliothè
 ```cpp
 #define WIFI_SSID "Votre_WiFi"
 #define WIFI_PASSWORD "Votre_Mot_De_Passe"
-#define BACKEND_API_URL "http://IP_SERVEUR:3000/api/v1/telemetry/batch"
+#define BACKEND_API_URL "https://phy-backend.vercel.app/api/v1/telemetry/batch"
 #define DEVICE_KEY "VOTRE_DEVICE_KEY_OBTENUE_DU_BACKEND"
 ```
 

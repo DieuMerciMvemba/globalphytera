@@ -87,6 +87,7 @@ String StorageManager::readQueueBatch(size_t maxItems) {
   JsonArray fullArray = doc.as<JsonArray>();
   DynamicJsonDocument batchDoc(4096);
   JsonObject root = batchDoc.to<JsonObject>();
+  root["deviceKey"] = DEVICE_KEY;
   JsonArray batchArray = root.createNestedArray("measurements");
 
   size_t count = 0;

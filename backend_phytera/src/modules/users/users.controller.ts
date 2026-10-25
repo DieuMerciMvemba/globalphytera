@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Body, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Body, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -16,8 +16,8 @@ export class UsersController {
   @ApiOperation({ summary: 'Liste de tous les utilisateurs (ADMIN)' })
   @Roles('ADMIN')
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query('role') role?: string) {
+    return this.usersService.findAll(role);
   }
 
   @ApiOperation({ summary: 'Détails d\'un utilisateur (ADMIN)' })

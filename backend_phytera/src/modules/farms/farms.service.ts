@@ -16,25 +16,33 @@ export class FarmsService {
   }
 
   async findAllForUser(userId: string, role: string) {
-    if (role === 'ADMIN') {
+    if (role === 'ADMIN' || role === 'TECHNICIEN') {
       return this.prisma.farm.findMany({
-        include: { owner: { select: { id: true, nom: true, email: true } }, fields: true },
+        include: {
+          owner: { select: { id: true, nom: true, email: true } },
+          fields: { include: { devices: true } },
+        },
+        orderBy: { createdAt: 'desc' },
       });
     }
     return this.prisma.farm.findMany({
       where: { ownerId: userId },
-      include: { fields: true },
+      include: { fields: { include: { devices: true } } },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async findOne(id: string, userId: string, role: string) {
     const farm = await this.prisma.farm.findUnique({
       where: { id },
-      include: { fields: { include: { devices: true } } },
+      include: {
+        owner: { select: { id: true, nom: true, email: true } },
+        fields: { include: { devices: true } },
+      },
     });
 
     if (!farm) throw new NotFoundException('Exploitation introuvable');
-    if (role !== 'ADMIN' && farm.ownerId !== userId) {
+    if (role !== 'ADMIN' && role !== 'TECHNICIEN' && farm.ownerId !== userId) {
       throw new ForbiddenException('Accès refusé à cette exploitation');
     }
 

@@ -23,9 +23,9 @@ export async function apiFetch(endpoint, options = {}) {
     const baseUrl = getBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
-    // Fast timeout (3000ms) to avoid hanging the UI when local backend is not running
+    // Timeout (15000ms) for reliable database queries
     const controller = new AbortController();
-    const timeoutMs = options.timeout || 3000;
+    const timeoutMs = options.timeout || 15000;
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     config.signal = controller.signal;
 
@@ -37,7 +37,8 @@ export async function apiFetch(endpoint, options = {}) {
             let errorMessage = `Erreur HTTP ${response.status}`;
             try {
                 const errorData = await response.json();
-                errorMessage = errorData.message || errorData.error || errorMessage;
+                const msg = errorData.message || errorData.error;
+                errorMessage = Array.isArray(msg) ? msg.join(', ') : (msg || errorMessage);
             } catch (e) {
                 // Response wasn't JSON
             }
@@ -57,6 +58,9 @@ export async function apiFetch(endpoint, options = {}) {
             throw new Error('Connexion au serveur expirée (Serveur non joignable)');
         }
         console.warn(`[API Call Warning] ${url}:`, error.message);
+        if (error instanceof TypeError) {
+            throw new Error('Impossible de joindre le serveur. Vérifiez votre connexion.');
+        }
         throw error;
     }
 }

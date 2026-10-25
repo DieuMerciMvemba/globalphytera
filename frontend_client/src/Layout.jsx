@@ -56,13 +56,25 @@ const Layout = () => {
     const notificationButtonRef = useRef(null);
 
     useEffect(() => {
-        try {
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            }
-        } catch (e) { }
-    }, []);
+        let isMounted = true;
+        authService.getProfile()
+            .then((profile) => {
+                if (isMounted && profile) {
+                    setUser(profile);
+                    localStorage.setItem('user', JSON.stringify(profile));
+                }
+            })
+            .catch((err) => {
+                // Si la session est invalide ou corrompue (faux token démo restant)
+                console.warn('Session non authentifiée auprès du backend:', err.message);
+                if (err.status === 401 || err.message?.includes('401') || err.message?.includes('token')) {
+                    authService.logout();
+                    navigate('/login');
+                }
+            });
+
+        return () => { isMounted = false; };
+    }, [navigate]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -221,11 +233,71 @@ const Layout = () => {
                 </header>
 
                 {/* Content */}
-                <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 scroll-smooth" onClick={() => setShowNotifications(false)}>
+                <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8 pb-20 md:pb-8 scroll-smooth" onClick={() => setShowNotifications(false)}>
                     <div className="max-w-7xl mx-auto w-full">
                         <Outlet />
                     </div>
                 </main>
+
+                {/* Mobile Bottom Navigation Bar (Mobile-first pour l'agriculteur sur le terrain) */}
+                <nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-navy-900/90 backdrop-blur-xl border-t border-white/10 px-3 py-2 flex items-center justify-around shadow-2xl">
+                    <NavLink
+                        to="/"
+                        end
+                        className={({ isActive }) =>
+                            `flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors ${
+                                isActive ? 'text-neon-cyan font-bold' : 'text-gray-400 hover:text-white'
+                            }`
+                        }
+                    >
+                        <LayoutDashboard size={19} />
+                        <span>Accueil</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/fields"
+                        className={({ isActive }) =>
+                            `flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors ${
+                                isActive ? 'text-neon-cyan font-bold' : 'text-gray-400 hover:text-white'
+                            }`
+                        }
+                    >
+                        <MapIcon size={19} />
+                        <span>Parcelles</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/crop-analysis"
+                        className={({ isActive }) =>
+                            `flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors ${
+                                isActive ? 'text-neon-cyan font-bold' : 'text-gray-400 hover:text-white'
+                            }`
+                        }
+                    >
+                        <Sparkles size={19} className="text-neon-green" />
+                        <span>Diag IA</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/alerts"
+                        className={({ isActive }) =>
+                            `flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors ${
+                                isActive ? 'text-neon-cyan font-bold' : 'text-gray-400 hover:text-white'
+                            }`
+                        }
+                    >
+                        <Bell size={19} />
+                        <span>Alertes</span>
+                    </NavLink>
+
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-[10px] font-medium text-gray-400 hover:text-white transition-colors"
+                    >
+                        <Menu size={19} />
+                        <span>Menu</span>
+                    </button>
+                </nav>
 
                 {/* Task Creation Modal */}
                 <CreateTaskModal

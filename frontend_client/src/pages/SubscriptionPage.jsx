@@ -72,8 +72,8 @@ const SubscriptionPage = () => {
             const data = await subscriptionService.getMySubscription();
             setCurrentSubscription(data);
         } catch (err) {
-            console.warn('Backend subscription endpoint unavailable, demo fallback.');
-            setCurrentSubscription({ plan: 'PRO', status: 'ACTIVE' });
+            console.warn('Abonnement indisponible:', err.message);
+            setCurrentSubscription(null);
         } finally {
             setLoading(false);
         }

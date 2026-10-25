@@ -63,14 +63,12 @@ export default function FarmsPage() {
         setLoading(true);
         try {
             const data = await farmsService.getAllFarms();
-            const farmList = Array.isArray(data) ? data : [];
-            setFarms(farmList);
-            setIsOfflineMode(farmList.some(f => f.isLocal) || localStorage.getItem('phytera_farms_data') !== null);
+            setFarms(Array.isArray(data) ? data : []);
+            setIsOfflineMode(false);
         } catch (err) {
-            console.warn('Backend farms endpoint error:', err.message);
+            setFarms([]);
             setIsOfflineMode(true);
-            const fallback = await farmsService.getAllFarms();
-            setFarms(fallback);
+            notify('error', err.message || 'Impossible de charger les exploitations.');
         } finally {
             setLoading(false);
         }

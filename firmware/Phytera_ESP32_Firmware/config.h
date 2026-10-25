@@ -5,8 +5,8 @@
 #define WIFI_SSID "PhyTera_Farm_WiFi"
 #define WIFI_PASSWORD "PhyTera2026Safe"
 
-// URL de l'API Backend NestJS
-#define BACKEND_API_URL "http://192.168.1.50:3000/api/v1/telemetry/batch"
+// URL de l'API Backend NestJS Déployé (Vercel Production)
+#define BACKEND_API_URL "https://phy-backend.vercel.app/api/v1/telemetry/batch"
 
 // Clé unique d'authentification du boîtier (Générée par le backend NestJS)
 #define DEVICE_KEY "PHYTERA_A1B2C3D4E5F6789012345678"

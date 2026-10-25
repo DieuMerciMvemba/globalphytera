@@ -5,8 +5,13 @@ import { PrismaService } from '../../database/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(role?: string) {
+    const where: any = {};
+    if (role) {
+      where.role = role;
+    }
     return this.prisma.user.findMany({
+      where,
       select: {
         id: true,
         email: true,
@@ -14,7 +19,28 @@ export class UsersService {
         role: true,
         isActive: true,
         createdAt: true,
+        farms: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            fields: {
+              select: {
+                id: true,
+                name: true,
+                cultureType: true,
+                devices: {
+                  select: { id: true, status: true, serialNumber: true },
+                },
+              },
+            },
+          },
+        },
+        maintenanceTickets: {
+          select: { id: true, status: true, title: true, interventionDate: true },
+        },
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

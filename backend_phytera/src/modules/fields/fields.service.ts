@@ -9,7 +9,7 @@ export class FieldsService {
   async create(userId: string, role: string, dto: CreateFieldDto) {
     const farm = await this.prisma.farm.findUnique({ where: { id: dto.farmId } });
     if (!farm) throw new NotFoundException('Exploitation introuvable');
-    if (role !== 'ADMIN' && farm.ownerId !== userId) {
+    if (role !== 'ADMIN' && role !== 'TECHNICIEN' && farm.ownerId !== userId) {
       throw new ForbiddenException('Vous ne pouvez ajouter un champ qu\'à vos propres exploitations');
     }
 
@@ -23,29 +23,46 @@ export class FieldsService {
         surfaceArea: dto.surfaceArea,
         locationPolygon: dto.locationPolygon,
       },
+      include: { farm: true, devices: true },
     });
   }
 
   async findAllForFarm(farmId: string, userId: string, role: string) {
-    const farm = await this.prisma.farm.findUnique({ where: { id: farmId } });
-    if (!farm) throw new NotFoundException('Exploitation introuvable');
-    if (role !== 'ADMIN' && farm.ownerId !== userId) {
-      throw new ForbiddenException('Accès refusé');
+    if (farmId) {
+      const farm = await this.prisma.farm.findUnique({ where: { id: farmId } });
+      if (!farm) throw new NotFoundException('Exploitation introuvable');
+      if (role !== 'ADMIN' && role !== 'TECHNICIEN' && farm.ownerId !== userId) {
+        throw new ForbiddenException('Accès refusé');
+      }
+
+      return this.prisma.field.findMany({
+        where: { farmId },
+        include: { farm: true, devices: true, alerts: { where: { resolved: false } } },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    if (role === 'ADMIN' || role === 'TECHNICIEN') {
+      return this.prisma.field.findMany({
+        include: { farm: true, devices: true, alerts: { where: { resolved: false } } },
+        orderBy: { createdAt: 'desc' },
+      });
     }
 
     return this.prisma.field.findMany({
-      where: { farmId },
-      include: { devices: true, alerts: { where: { resolved: false } } },
+      where: { farm: { ownerId: userId } },
+      include: { farm: true, devices: true, alerts: { where: { resolved: false } } },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async findOne(id: string, userId: string, role: string) {
     const field = await this.prisma.field.findUnique({
       where: { id },
-      include: { farm: true, devices: true, alerts: true },
+      include: { farm: true, devices: true, alerts: true, cropImages: true, droneMissions: true },
     });
     if (!field) throw new NotFoundException('Champ introuvable');
-    if (role !== 'ADMIN' && field.farm.ownerId !== userId) {
+    if (role !== 'ADMIN' && role !== 'TECHNICIEN' && field.farm.ownerId !== userId) {
       throw new ForbiddenException('Accès refusé');
     }
     return field;
@@ -56,6 +73,7 @@ export class FieldsService {
     return this.prisma.field.update({
       where: { id },
       data: dto,
+      include: { farm: true, devices: true },
     });
   }
 

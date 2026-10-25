@@ -14,8 +14,8 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: "Consulter les journaux d'audit de sécurité (Admin uniquement)" })
+  @Roles(Role.ADMIN, Role.AGRICULTEUR, Role.TECHNICIEN)
+  @ApiOperation({ summary: "Consulter les journaux d'audit de sécurité" })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async getAuditLogs(@Query('page') page = 1, @Query('limit') limit = 50) {

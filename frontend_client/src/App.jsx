@@ -18,7 +18,8 @@ import NotificationsPage from './pages/NotificationsPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const isAuthenticated =
+    localStorage.getItem('isAuthenticated') === 'true' && !!localStorage.getItem('token');
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 

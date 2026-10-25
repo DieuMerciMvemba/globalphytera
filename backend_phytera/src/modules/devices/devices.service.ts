@@ -39,9 +39,10 @@ export class DevicesService {
   }
 
   async findAllForUser(userId: string, role: string) {
-    if (role === 'ADMIN') {
+    if (role === 'ADMIN' || role === 'TECHNICIEN') {
       return this.prisma.device.findMany({
         include: { field: { include: { farm: true } } },
+        orderBy: { createdAt: 'desc' },
       });
     }
     return this.prisma.device.findMany({
@@ -53,6 +54,7 @@ export class DevicesService {
         },
       },
       include: { field: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -62,7 +64,7 @@ export class DevicesService {
       include: { field: { include: { farm: true } } },
     });
     if (!device) throw new NotFoundException('Boîtier introuvable');
-    if (role !== 'ADMIN' && device.field.farm.ownerId !== userId) {
+    if (role !== 'ADMIN' && role !== 'TECHNICIEN' && device.field.farm.ownerId !== userId) {
       throw new ForbiddenException('Accès refusé à ce boîtier');
     }
     return device;

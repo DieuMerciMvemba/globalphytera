@@ -26,7 +26,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         nom: dto.nom,
-        role: dto.role || 'AGRICULTEUR',
+        role: 'AGRICULTEUR', // Inscription publique = agriculteur uniquement
       },
     });
 

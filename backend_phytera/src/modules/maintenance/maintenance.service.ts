@@ -10,6 +10,7 @@ export interface CreateTicketDto {
 }
 
 export interface UpdateTicketDto {
+  technicianId?: string;
   status?: TicketStatus;
   resolutionNote?: string;
   interventionDate?: Date;
@@ -45,11 +46,42 @@ export class MaintenanceService {
     return this.prisma.maintenanceTicket.update({
       where: { id },
       data: {
+        technicianId: dto.technicianId ?? ticket.technicianId,
         status: dto.status ?? ticket.status,
         resolutionNote: dto.resolutionNote ?? ticket.resolutionNote,
         interventionDate: dto.interventionDate ?? ticket.interventionDate,
       },
     });
+  }
+
+  async findOne(id: string) {
+    const ticket = await this.prisma.maintenanceTicket.findUnique({
+      where: { id },
+      include: {
+        device: {
+          include: {
+            field: {
+              include: {
+                farm: {
+                  include: {
+                    owner: {
+                      select: { id: true, nom: true, email: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        technician: {
+          select: { id: true, nom: true, email: true },
+        },
+      },
+    });
+    if (!ticket) {
+      throw new NotFoundException(`Ticket de maintenance ${id} introuvable`);
+    }
+    return ticket;
   }
 
   async findForTechnician(technicianId: string) {
@@ -59,6 +91,32 @@ export class MaintenanceService {
       include: {
         device: {
           include: { field: true },
+        },
+      },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.maintenanceTicket.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        device: {
+          include: {
+            field: {
+              include: {
+                farm: {
+                  include: {
+                    owner: {
+                      select: { id: true, nom: true, email: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        technician: {
+          select: { id: true, nom: true, email: true },
         },
       },
     });

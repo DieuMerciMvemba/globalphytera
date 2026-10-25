@@ -14,6 +14,23 @@ import { MaintenanceService, CreateTicketDto, UpdateTicketDto } from './maintena
 export class MaintenanceController {
   constructor(private readonly maintenanceService: MaintenanceService) {}
 
+  @Get()
+  @Roles(Role.TECHNICIEN, Role.ADMIN)
+  @ApiOperation({ summary: "Consulter les tickets d'intervention (tous pour Admin, assignés pour Technicien)" })
+  async getInterventions(@GetUser('id') userId: string, @GetUser('role') role: Role) {
+    if (role === Role.ADMIN) {
+      return this.maintenanceService.findAll();
+    }
+    return this.maintenanceService.findForTechnician(userId);
+  }
+
+  @Post()
+  @Roles(Role.TECHNICIEN, Role.ADMIN)
+  @ApiOperation({ summary: "Créer un ticket d'intervention (alias)" })
+  async createInterventionRoot(@GetUser('id') technicianId: string, @Body() dto: Omit<CreateTicketDto, 'technicianId'>) {
+    return this.maintenanceService.create({ ...dto, technicianId });
+  }
+
   @Post('tickets')
   @Roles(Role.TECHNICIEN, Role.ADMIN)
   @ApiOperation({ summary: "Ouvrir un ticket d'intervention technique sur un boîtier" })
@@ -40,5 +57,19 @@ export class MaintenanceController {
   @ApiOperation({ summary: "Historique des maintenances pour un boîtier donné" })
   async getDeviceTickets(@Param('deviceId') deviceId: string) {
     return this.maintenanceService.findForDevice(deviceId);
+  }
+
+  @Get('tickets/:id')
+  @Roles(Role.TECHNICIEN, Role.ADMIN)
+  @ApiOperation({ summary: "Obtenir les détails d'un ticket d'intervention" })
+  async getTicketById(@Param('id') id: string) {
+    return this.maintenanceService.findOne(id);
+  }
+
+  @Get('tickets')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: "Lister tous les tickets d'intervention (Admin)" })
+  async getAllTickets() {
+    return this.maintenanceService.findAll();
   }
 }
